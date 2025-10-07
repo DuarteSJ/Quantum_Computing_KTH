@@ -1,0 +1,27 @@
+{
+  "nodes": {
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1759802921,
+        "narHash": "sha256-jqY4NkT0ZXvgCRiwjfvhd39XPdNTdDUQhu7o1Dk0Rco=",
+        "owner": "DuarteSJ",
+        "repo": "nixpkgs",
+        "rev": "a9e43edb174718aa9e9b743cf81a91b89a8d2af4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "DuarteSJ",
+        "ref": "current",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
