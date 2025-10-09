@@ -1,0 +1,8 @@
+__pycache__/
+.env
+.venv
+.ipynb_checkpoints
+*.ipynb_checkpoints
+.cache/
+pytest_cache/
+flake.lock
