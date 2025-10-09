@@ -81,4 +81,5 @@ class QuantumGates:
 
     @staticmethod
     def measure(state: np.ndarray) -> int:
-    # TODO: Implement ts
+        # TODO: Implement ts
+        ...
