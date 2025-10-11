@@ -28,7 +28,7 @@
           echo -e "\033[0;90m    → Virtual environment: (py-env)\033[0m"
           
           export NIX_PS1_OVERRIDE="(py-env) "
-          export PYTHONPATH="$PWD:$PYTHONPATH"
+          export PYTHONPATH="$(git rev-parse --show-toplevel)/quantum-simulator:$PYTHONPATH"
           exec zsh
         '';
       };

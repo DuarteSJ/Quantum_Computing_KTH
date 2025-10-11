@@ -1,9 +1,18 @@
+"""
+Two-qubit gate tests for our quantum circuit simulator.
+
+Tests verify correctness by comparing against Qiskit's implementations.
+All tests use statevector comparison with high precision (rtol=1e-12, atol=1e-12).
+"""
+
 import numpy as np
 import pytest
 from src.circuit import QuantumCircuit
-
 from qiskit import QuantumCircuit as QiskitQuantumCircuit
 from qiskit.quantum_info import Statevector
+
+
+# ==================== Utilities ====================
 
 
 def statevector_from_qiskit(circ: QiskitQuantumCircuit) -> np.ndarray:
@@ -12,191 +21,161 @@ def statevector_from_qiskit(circ: QiskitQuantumCircuit) -> np.ndarray:
     return np.asarray(sv.data, dtype=np.complex128)
 
 
-# ----------------- Test CX gate -----------------
-
-def test_cx_no_efect():
-    # Qiskit
-    qc = QiskitQuantumCircuit(2)
-    qc.cx(0, 1)
-    sv_qiskit = statevector_from_qiskit(qc)
-
-    # Our simulator
-    qs = QuantumCircuit(2)
-    qs.cx(0, 1)
-    sv_ours = qs.state
-
-    # Compare
+def compare_circuits(our_circuit: QuantumCircuit, qiskit_circuit: QiskitQuantumCircuit):
+    """Compare statevectors from our circuit and Qiskit circuit."""
+    sv_qiskit = statevector_from_qiskit(qiskit_circuit)
+    sv_ours = our_circuit.state
     np.testing.assert_allclose(sv_ours, sv_qiskit, rtol=1e-12, atol=1e-12)
 
 
-def test_cx_control_one():
-    # Qiskit
-    qc = QiskitQuantumCircuit(2)
-    qc.x(0)
-    qc.cx(0, 1)
-    sv_qiskit = statevector_from_qiskit(qc)
-
-    # Our simulator
-    qs = QuantumCircuit(2)
-    qs.x(0)
-    qs.cx(0, 1)
-    sv_ours = qs.state
-
-    # Compare
-    np.testing.assert_allclose(sv_ours, sv_qiskit, rtol=1e-12, atol=1e-12)
+# Common test angles for parametric gates
+ROTATION_ANGLES = [
+    0,
+    np.pi / 8,
+    np.pi / 4,
+    np.pi / 2,
+    np.pi,
+    3 * np.pi / 2,
+    2 * np.pi - np.pi / 4,
+    -np.pi,
+    -np.pi / 8,
+    -2 * np.pi,
+]
 
 
-def test_cx_entanglement():
-    # Qiskit
-    qc = QiskitQuantumCircuit(2)
-    qc.h(0)
-    qc.cx(0, 1)
-    sv_qiskit = statevector_from_qiskit(qc)
-
-    # Our simulator
-    qs = QuantumCircuit(2)
-    qs.h(0)
-    qs.cx(0, 1)
-    sv_ours = qs.state
-
-    # Compare
-    np.testing.assert_allclose(sv_ours, sv_qiskit, rtol=1e-12, atol=1e-12)
+# ==================== CNOT (CX) Gate ====================
 
 
-# ----------------- Test CP gate -----------------
+class TestCXGate:
+    """CNOT (CX) gate tests."""
 
-@pytest.mark.parametrize(
-    "theta",
-    [
-        0,
-        np.pi / 8,
-        np.pi / 4,
-        np.pi / 2,
-        np.pi,
-        3 * np.pi / 2,
-        2 * np.pi - np.pi / 4,
-        -np.pi,
-        -np.pi / 8,
-        -2 * np.pi,
-    ],
-)
-def test_cp_no_efect(theta):
-    # Qiskit
-    qc = QiskitQuantumCircuit(2)
-    qc.x(1)  # so we can see the effect (in this case none)
-    qc.cp(theta, 0, 1)
-    sv_qiskit = statevector_from_qiskit(qc)
+    def test_no_effect(self):
+        """CX gate with control=|0⟩ should have no effect."""
+        qc = QiskitQuantumCircuit(2)
+        qc.cx(0, 1)
 
-    # Our simulator
-    qs = QuantumCircuit(2)
-    qs.x(1)  # so we can see the effect (in this case none)
-    qs.cp(theta, 0, 1)
-    sv_ours = qs.state
+        qs = QuantumCircuit(2)
+        qs.cx(0, 1)
 
-    # Compare
-    np.testing.assert_allclose(sv_ours, sv_qiskit, rtol=1e-12, atol=1e-12)
+        compare_circuits(qs, qc)
 
+    def test_control_one(self):
+        """CX gate with control=|1⟩ should flip target."""
+        qc = QiskitQuantumCircuit(2)
+        qc.x(0)
+        qc.cx(0, 1)
 
-@pytest.mark.parametrize(
-    "theta",
-    [
-        0,
-        np.pi / 8,
-        np.pi / 4,
-        np.pi / 2,
-        np.pi,
-        3 * np.pi / 2,
-        2 * np.pi - np.pi / 4,
-        -np.pi,
-        -np.pi / 8,
-        -2 * np.pi,
-    ],
-)
-def test_cp_control_one(theta):
-    # Qiskit
-    qc = QiskitQuantumCircuit(2)
-    qc.x(0)
-    qc.x(1)  # so we can see the effect
-    qc.cp(theta, 0, 1)
-    sv_qiskit = statevector_from_qiskit(qc)
+        qs = QuantumCircuit(2)
+        qs.x(0)
+        qs.cx(0, 1)
 
-    # Our simulator
-    qs = QuantumCircuit(2)
-    qs.x(0)
-    qs.x(1)  # so we can see the effect
-    qs.cp(theta, 0, 1)
-    sv_ours = qs.state
+        compare_circuits(qs, qc)
 
-    # Compare
-    np.testing.assert_allclose(sv_ours, sv_qiskit, rtol=1e-12, atol=1e-12)
+    def test_entanglement(self):
+        """CX gate creates Bell state from H|0⟩."""
+        qc = QiskitQuantumCircuit(2)
+        qc.h(0)
+        qc.cx(0, 1)
 
-# ----------------- Test CZ gate -----------------
+        qs = QuantumCircuit(2)
+        qs.h(0)
+        qs.cx(0, 1)
 
-def test_cz_no_efect():
-    # Qiskit
-    qc = QiskitQuantumCircuit(2)
-    qc.x(1)  # so we can see the effect (in this case none)
-    qc.cz(0, 1)
-    sv_qiskit = statevector_from_qiskit(qc)
-
-    # Our simulator
-    qs = QuantumCircuit(2)
-    qs.x(1)  # so we can see the effect (in this case none)
-    qs.cz(0, 1)
-    sv_ours = qs.state
-
-    # Compare
-    np.testing.assert_allclose(sv_ours, sv_qiskit, rtol=1e-12, atol=1e-12)
+        compare_circuits(qs, qc)
 
 
-def test_cz_control_one():
-    # Qiskit
-    qc = QiskitQuantumCircuit(2)
-    qc.x(0)
-    qc.x(1)  # so we can see the effect
-    qc.cz(0, 1)
-    sv_qiskit = statevector_from_qiskit(qc)
-
-    # Our simulator
-    qs = QuantumCircuit(2)
-    qs.x(0)
-    qs.x(1)  # so we can see the effect
-    qs.cz(0, 1)
-    sv_ours = qs.state
-
-    # Compare
-    np.testing.assert_allclose(sv_ours, sv_qiskit, rtol=1e-12, atol=1e-12)
+# ==================== Controlled-Phase (CP) Gate ====================
 
 
-# ----------------- Test SWAP gate -----------------
+class TestCPGate:
+    """Controlled-Phase gate tests."""
 
-def test_swap_simple():
-    # Qiskit
-    qc = QiskitQuantumCircuit(2)
-    qc.swap(0, 1)
-    sv_qiskit = statevector_from_qiskit(qc)
+    @pytest.mark.parametrize("theta", ROTATION_ANGLES)
+    def test_no_effect(self, theta):
+        """CP gate with control=|0⟩ should have no effect."""
+        qc = QiskitQuantumCircuit(2)
+        qc.x(1)  # Target in |1⟩ to make effect visible
+        qc.cp(theta, 0, 1)
 
-    # Our simulator
-    qs = QuantumCircuit(2)
-    qs.swap(0, 1)
-    sv_ours = qs.state
+        qs = QuantumCircuit(2)
+        qs.x(1)
+        qs.cp(theta, 0, 1)
 
-    # Compare
-    np.testing.assert_allclose(sv_ours, sv_qiskit, rtol=1e-12, atol=1e-12)
+        compare_circuits(qs, qc)
+
+    @pytest.mark.parametrize("theta", ROTATION_ANGLES)
+    def test_control_one(self, theta):
+        """CP gate with control=|1⟩ applies phase to target."""
+        qc = QiskitQuantumCircuit(2)
+        qc.x(0)  # Control in |1⟩
+        qc.x(1)  # Target in |1⟩ to make effect visible
+        qc.cp(theta, 0, 1)
+
+        qs = QuantumCircuit(2)
+        qs.x(0)
+        qs.x(1)
+        qs.cp(theta, 0, 1)
+
+        compare_circuits(qs, qc)
 
 
-def test_swap_after_x():
-    # Qiskit
-    qc = QiskitQuantumCircuit(2)
-    qc.x(0)
-    qc.swap(0, 1)
-    sv_qiskit = statevector_from_qiskit(qc)
+# ==================== Controlled-Z (CZ) Gate ====================
 
-    # Our simulator
-    qs = QuantumCircuit(2)
-    qs.x(0)
-    qs.swap(0, 1)
-    sv_ours = qs.state
 
-    # Compare
-    np.testing.assert_allclose(sv_ours, sv_qiskit, rtol=1e-12, atol=1e-12)
+class TestCZGate:
+    """Controlled-Z gate tests."""
+
+    def test_no_effect(self):
+        """CZ gate with control=|0⟩ should have no effect."""
+        qc = QiskitQuantumCircuit(2)
+        qc.x(1)  # Target in |1⟩ to make effect visible
+        qc.cz(0, 1)
+
+        qs = QuantumCircuit(2)
+        qs.x(1)
+        qs.cz(0, 1)
+
+        compare_circuits(qs, qc)
+
+    def test_control_one(self):
+        """CZ gate with both qubits=|1⟩ applies phase."""
+        qc = QiskitQuantumCircuit(2)
+        qc.x(0)  # Control in |1⟩
+        qc.x(1)  # Target in |1⟩
+        qc.cz(0, 1)
+
+        qs = QuantumCircuit(2)
+        qs.x(0)
+        qs.x(1)
+        qs.cz(0, 1)
+
+        compare_circuits(qs, qc)
+
+
+# ==================== SWAP Gate ====================
+
+
+class TestSWAPGate:
+    """SWAP gate tests."""
+
+    def test_ground_state(self):
+        """SWAP on |00⟩ should have no observable effect."""
+        qc = QiskitQuantumCircuit(2)
+        qc.swap(0, 1)
+
+        qs = QuantumCircuit(2)
+        qs.swap(0, 1)
+
+        compare_circuits(qs, qc)
+
+    def test_after_x_gate(self):
+        """SWAP should exchange qubit states."""
+        qc = QiskitQuantumCircuit(2)
+        qc.x(0)  # Put qubit 0 in |1⟩ to see the swap effect
+        qc.swap(0, 1)
+
+        qs = QuantumCircuit(2)
+        qs.x(0)
+        qs.swap(0, 1)
+
+        compare_circuits(qs, qc)
