@@ -150,6 +150,18 @@ class TestPauliZ:
 
         compare_circuits(qs, qc)
 
+    def test_with_superposition(self):
+        """Z gate on superposition state."""
+        qc = QiskitQuantumCircuit(1)
+        qc.h(0)
+        qc.z(0)
+
+        qs = QuantumCircuit(1)
+        qs.h(0)
+        qs.z(0)
+
+        compare_circuits(qs, qc)
+
 
 # ==================== Phase Gates ====================
 

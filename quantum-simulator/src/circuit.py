@@ -77,7 +77,7 @@ class QuantumCircuit:
         self.apply_single_qubit(QuantumGates.y(), target)
 
     def z(self, target: int) -> None:
-        self.apply_single_qubit(QuantumGates.z(), target)
+        self.apply_single_qubit(QuantumGates.p(np.pi), target)
 
     def h(self, target: int) -> None:
         self.apply_single_qubit(QuantumGates.h(), target)

@@ -17,11 +17,6 @@ class QuantumGates:
         return np.array([[0, -1j], [1j, 0]], dtype=complex)
 
     @staticmethod
-    def z() -> np.ndarray:
-        """Pauli-Z gate."""
-        return np.array([[1, 0], [0, -1]], dtype=complex)
-
-    @staticmethod
     def h() -> np.ndarray:
         """Hadamard gate."""
         return np.array([[1, 1], [1, -1]], dtype=complex) / np.sqrt(2)
