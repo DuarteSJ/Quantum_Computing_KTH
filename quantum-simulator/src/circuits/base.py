@@ -1,73 +1,36 @@
-"""Module for simulating n-qubit quantum states and applying quantum gates."""
+"""Abstract base class for quantum simulators."""
 
+from abc import ABC, abstractmethod
 import numpy as np
-from typing import List, Optional, Tuple
 from src.gates import QuantumGates
-import matplotlib.pyplot as plt
-import math
 
+class QuantumSimulator(ABC):
+    """Abstract base for quantum simulators."""
 
-class QuantumCircuit:
-    """Represents an n-qubit quantum statevector and allows gate application."""
+    @abstractmethod
+    def __init__(self, n: int):
+        """Initialize n-qubit system."""
+        pass
 
-    state: np.ndarray
-    n: int
+    @abstractmethod
+    def apply_single_qubit(self, gate: np.ndarray, target: int):
+        """Apply single-qubit gate."""
+        pass
 
-    def __init__(self, n: int) -> None:
-        """Initialize an n-qubit quantum state in |0...0>."""
-        self.n = n
-        self.state = np.zeros(2**n, dtype=complex)
-        self.state[0] = 1.0  # start in |0...0>
+    @abstractmethod
+    def apply_two_qubit(self, gate: np.ndarray, t1: int, t2: int):
+        """Apply two-qubit gate."""
+        pass
 
-    def apply_single_qubit(self, gate_matrix: np.ndarray, target: int) -> None:
-        """
-        Apply a single-qubit gate to a target qubit.
+    @abstractmethod
+    def get_statevector(self) -> np.ndarray:
+        """Return full statevector."""
+        pass
 
-        Args:
-            gate_matrix (np.ndarray): 2x2 unitary matrix
-            target (int): qubit index (0-indexed)
-        """
-        new_state = np.zeros_like(self.state)
-        for i in range(len(self.state)):
-            bit = (i >> target) & 1
-            i0 = i & ~(1 << target)
-            i1 = i | (1 << target)
-            new_state[i] += (
-                gate_matrix[bit, 0] * self.state[i0]
-                + gate_matrix[bit, 1] * self.state[i1]
-            )
-        self.state = new_state
-
-    def apply_two_qubit(
-        self, gate_matrix: np.ndarray, target1: int, target2: int
-    ) -> None:
-        """
-        Apply a two-qubit gate to two target qubits.
-
-        Args:
-            gate_matrix (np.ndarray): 4x4 unitary matrix
-            targets (List[int]): two qubit indices [q0, q1]
-        """
-        new_state = np.zeros_like(self.state)
-        for i in range(len(self.state)):
-            b0 = (i >> target1) & 1
-            b1 = (i >> target2) & 1
-            i00 = i & ~(1 << target1) & ~(1 << target2)
-            i01 = i00 | (1 << target2)
-            i10 = i00 | (1 << target1)
-            i11 = i00 | (1 << target1) | (1 << target2)
-            idx = b0 * 2 + b1
-            new_state[i] += (
-                gate_matrix[idx, 0] * self.state[i00]
-                + gate_matrix[idx, 1] * self.state[i01]
-                + gate_matrix[idx, 2] * self.state[i10]
-                + gate_matrix[idx, 3] * self.state[i11]
-            )
-        self.state = new_state
-
-    def apply_measure(self):
-        # TODO: Implement measurement
-        ...
+    @abstractmethod
+    def measure_all(self) -> int:
+        """Measure all qubits, return basis state index."""
+        pass
 
     # Convenience wrappers for all standard gates from QuantumGates
     def x(self, target: int) -> None:
@@ -112,7 +75,11 @@ class QuantumCircuit:
     def swap(self, target1: int, target2: int) -> None:
         self.apply_two_qubit(QuantumGates.swap(), target1, target2)
 
-    # Visualization method
+    def apply_measure(self):
+        # TODO: Implement measurement
+        ...
+
+
     def viz_circle(
         self,
         max_cols: int = 8,
@@ -121,17 +88,18 @@ class QuantumCircuit:
     ):
         """
         Visualize the quantum state in circle notation.
-
         Args:
             max_cols (int): Maximum number of columns in the grid
             figsize_scale (float): Scaling factor for figure size
             label (str): Title of the figure
         """
+        import math
+        import matplotlib.pyplot as plt
 
-        # NOTE: This was adapted from the teaching material
-        n_states = len(self.state)
-        prob = np.abs(self.state) ** 2
-        phase = np.angle(self.state)
+        state = self.get_statevector()  # Works for all variants!
+        n_states = len(state)
+        prob = np.abs(state) ** 2
+        phase = np.angle(state)
 
         cols = max(1, min(max_cols, n_states))
         rows = int(math.ceil(n_states / cols))
