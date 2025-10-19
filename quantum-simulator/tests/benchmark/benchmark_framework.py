@@ -8,7 +8,7 @@ memory profiling, and visualization of results.
 Usage:
     from benchmark_framework import run_benchmark
     from benchmark_CIRCUIT import CIRCUIT
-    
+
     run_benchmark([CIRCUIT], max_qubits=15)
 """
 
@@ -24,15 +24,16 @@ from src.circuits.Dense_Polar import DensePolarSim
 from src.circuits.Sparse_Dict import SparseDictSim
 from src.circuits.Vectorized import VectorizedSim
 
+
 def benchmark_simulator(SimClass, circuit_def, max_qubits=15):
     """
     Benchmark execution time and memory usage for a specific circuit.
-    
+
     Args:
         SimClass: Simulator class or "qiskit" string
         circuit_def: Dictionary with circuit definition (see CIRCUIT_TEMPLATE)
         max_qubits: Maximum number of qubits to test
-        
+
     Returns:
         Tuple of (time_results, memory_results) dictionaries
     """
@@ -92,7 +93,7 @@ def benchmark_simulator(SimClass, circuit_def, max_qubits=15):
 def plot_results(time_results, memory_results, circuit_name, circuit_key):
     """
     Create benchmark visualization plots.
-    
+
     Args:
         time_results: Dictionary mapping simulator names to timing data
         memory_results: Dictionary mapping simulator names to memory data
@@ -135,7 +136,9 @@ def plot_results(time_results, memory_results, circuit_name, circuit_key):
 
     axes[0].set_xlabel("Number of Qubits", fontsize=12)
     axes[0].set_ylabel("Execution Time (seconds)", fontsize=12)
-    axes[0].set_title(f"{circuit_name} - Execution Time", fontsize=14, fontweight="bold")
+    axes[0].set_title(
+        f"{circuit_name} - Execution Time", fontsize=14, fontweight="bold"
+    )
     axes[0].legend(fontsize=10)
     axes[0].grid(True, alpha=0.3)
     axes[0].set_yscale("log")
@@ -185,7 +188,9 @@ def plot_results(time_results, memory_results, circuit_name, circuit_key):
         axes[2].axhline(y=1.0, color="gray", linestyle="--", linewidth=1.5, alpha=0.7)
         axes[2].set_xlabel("Number of Qubits", fontsize=12)
         axes[2].set_ylabel("Speedup (×)", fontsize=12)
-        axes[2].set_title(f"{circuit_name} - Speedup vs Qiskit", fontsize=14, fontweight="bold")
+        axes[2].set_title(
+            f"{circuit_name} - Speedup vs Qiskit", fontsize=14, fontweight="bold"
+        )
         axes[2].legend(fontsize=10)
         axes[2].grid(True, alpha=0.3)
 
@@ -199,7 +204,7 @@ def plot_results(time_results, memory_results, circuit_name, circuit_key):
 def run_benchmark(circuits, max_qubits=15, simulators=None):
     """
     Run benchmarks for specified circuits and simulators.
-    
+
     Args:
         circuits: List of circuit definitions (dictionaries)
         max_qubits: Maximum number of qubits to test
@@ -232,10 +237,10 @@ def run_benchmark(circuits, max_qubits=15, simulators=None):
         print("\n" + "=" * 60)
         print("Generating plots...")
         plot_results(
-            all_time_results, 
-            all_memory_results, 
-            circuit_def['name'], 
-            circuit_def['key']
+            all_time_results,
+            all_memory_results,
+            circuit_def["name"],
+            circuit_def["key"],
         )
 
 
@@ -244,8 +249,8 @@ def run_benchmark(circuits, max_qubits=15, simulators=None):
 # ============================================================================
 
 CIRCUIT_TEMPLATE = {
-    "key": "example",              # Short identifier for filenames
-    "name": "Example Circuit",     # Human-readable name
-    "custom": None,                # Function: custom_function(qc) -> None
-    "qiskit": None,                # Function: qiskit_function(qc) -> None
+    "key": "example",  # Short identifier for filenames
+    "name": "Example Circuit",  # Human-readable name
+    "custom": None,  # Function: custom_function(qc) -> None
+    "qiskit": None,  # Function: qiskit_function(qc) -> None
 }
