@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from src.gates import QuantumGates
 
+
 class QuantumSimulator(ABC):
     """Abstract base for quantum simulators."""
 
@@ -78,7 +79,6 @@ class QuantumSimulator(ABC):
     def apply_measure(self):
         # TODO: Implement measurement
         ...
-
 
     def viz_circle(
         self,

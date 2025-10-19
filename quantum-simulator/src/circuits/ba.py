@@ -10,7 +10,7 @@ print("state vector for dense after had gate", qdense.get_statevector())
 # qdense.viz_circle(label=" Dense After H gate")
 
 
-qsparse  = SparseDictSim(1)
+qsparse = SparseDictSim(1)
 print("state vector for sparse before had gate", qsparse.get_statevector())
 # qsparse.viz_circle(label=" Sparse Before H gate")
 
