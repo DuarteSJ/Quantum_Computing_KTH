@@ -4,7 +4,13 @@ A quantum circuit simulator with multiple backend implementations for comparing 
 
 ## Installation
 
-### If you are using NixOs
+### Standard Python
+
+```bash
+pip install numpy qiskit matplotlib pytest
+```
+
+### Or, for the NixOs users
 
 ```bash
 # Enter development shell
@@ -12,12 +18,6 @@ nix develop
 
 # Or run directly
 nix develop --command python your_script.py
-```
-
-### Standard Python
-
-```bash
-pip install numpy qiskit matplotlib pytest
 ```
 
 ## Quick Start
