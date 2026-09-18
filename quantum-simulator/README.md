@@ -112,3 +112,8 @@ quantum-simulator/
 │           └── benchmark_sparse_friendly.py
 └── README.md
 ```
+
+## Licence
+
+MIT — see [LICENSE](../LICENSE) at the repository root. Copyright (c) 2025
+Duarte São José and Jens Verherstraeten.
